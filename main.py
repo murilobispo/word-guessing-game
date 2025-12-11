@@ -9,13 +9,18 @@ attempts = 6
 root = tk.Tk()
 
 root.title("Word Guessing Game")
-root.geometry("500x700")
+root.geometry("500x650")
 root.config(bg="grey")
-root.resizable(False,False)
+root.minsize(500, 650)
+
 #root.maxsize("600x700")
-#root.mminsize("400x500")
 #root.state('zoomed')
 #root.iconbitmap('local-icon')
+
+#def f(event):
+#    print("pressed:", event.keysym)
+
+#root.bind("<Key>", f)
 
 ##
 header = tk.Frame(root, background="green", height=50)
@@ -36,20 +41,28 @@ h1.pack(expand=True )
 ##
 main= tk.Frame(root, background="blue")
 main.pack(fill="both", expand=True)
-
-letters_grid = tk.Label(master=main, background="grey")
-letters_grid.grid(row=0, column=1, sticky="nsew")
-
-
-keyboard_grid = tk.Label(master=main, background="yellow")
-keyboard_grid.grid(row=1, column=0, sticky="nsew", columnspan=3)
-
-main.grid_rowconfigure(0, weight=70)
-main.grid_rowconfigure(1, weight=30)
-
 main.grid_columnconfigure(0, weight=1)   
 main.grid_columnconfigure(1, weight=3)   
 main.grid_columnconfigure(2, weight=1)   
+main.grid_rowconfigure(0, weight=60)
+main.grid_rowconfigure(1, weight=40)
+
+letters_section= tk.Label(master=main, background="grey")
+letters_section.grid(row=0, column=1, sticky="nsew")
+#letters_grid = []
+
+for i in range(0, attempts):
+    for j in range(0, len(secretWord)):
+        box = tk.Label(
+            master=letters_section,
+            text=secretWord[j], 
+            background="purple")
+        box.grid(row=i, column=j, sticky="nsew", pady=2, padx=2)
+        letters_section.grid_rowconfigure(i, weight=1)
+        letters_section.grid_columnconfigure(j, weight=1)
+
+keyboard_section= tk.Label(master=main, background="yellow")
+keyboard_section.grid(row=1, column=0, sticky="nsew", columnspan=3)
 ##
 
 ##
