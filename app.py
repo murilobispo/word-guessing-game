@@ -11,7 +11,11 @@ root = tk.Tk()
 root.title("Word Guessing Game")
 root.geometry("500x650")
 root.config(bg="grey")
-root.minsize(500, 650)
+root.minsize(500, 700)
+
+root.update_idletasks()
+root_width = root.winfo_width()
+#root.resizable(False, False)
 
 #root.maxsize("600x700")
 #root.state('zoomed')
@@ -35,34 +39,36 @@ h1 = tk.Label(
     foreground="white",
     anchor="center"
 )
-h1.pack(expand=True )
+h1.pack(expand=True)
 ##
 
 ##
 main= tk.Frame(root, background="blue")
-main.pack(fill="both", expand=True)
-main.grid_columnconfigure(0, weight=1)   
-main.grid_columnconfigure(1, weight=3)   
-main.grid_columnconfigure(2, weight=1)   
-main.grid_rowconfigure(0, weight=60)
-main.grid_rowconfigure(1, weight=40)
+main.pack(expand=True)
 
-letters_section= tk.Label(master=main, background="grey")
-letters_section.grid(row=0, column=1, sticky="nsew")
-#letters_grid = []
+guesses = tk.Frame(main, background="darkgray", width=350, height=400)
+guesses.pack()
+guesses.pack_propagate(False)
 
-for i in range(0, attempts):
-    for j in range(0, len(secretWord)):
-        box = tk.Label(
-            master=letters_section,
-            text=secretWord[j], 
-            background="purple")
-        box.grid(row=i, column=j, sticky="nsew", pady=2, padx=2)
-        letters_section.grid_rowconfigure(i, weight=1)
-        letters_section.grid_columnconfigure(j, weight=1)
+keyboard = tk.Frame(main, background="red", width=root_width, height=200)
+keyboard.pack(pady=(30,0))
+keyboard.pack_propagate(False)
 
-keyboard_section= tk.Label(master=main, background="yellow")
-keyboard_section.grid(row=1, column=0, sticky="nsew", columnspan=3)
+keys_value = [['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+              ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+              ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BS']
+                ]
+
+#for i, row in enumerate(keys_value):
+    #row_frame = tk.Frame(keyboard, bg="white")
+    #row_frame.pack(pady=2)
+    #for value in row:
+       # lbl = tk.Label(row_frame, text=value, background="green", width=5, height=2)
+        #lbl.pack(side="left", padx=2)
+
+
+
+        
 ##
 
 ##
