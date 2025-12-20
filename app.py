@@ -1,13 +1,21 @@
 import tkinter as tk
-from tkinter import ttk
 
 secretWord = 'APPLE'
 blank = ' ' * len(secretWord)
 print(blank)
 
 attempts = 6
-root = tk.Tk()
 
+def click(e):
+    input = e.widget["text"]
+    if input == "⌫":
+        print("Backspace")
+    elif input == "ENTER":
+        print("Enter")
+    else:
+        print(input)
+
+root = tk.Tk()
 root.title("Word Guessing Game")
 root.geometry("500x650")
 root.config(bg="grey")
@@ -15,17 +23,11 @@ root.minsize(500, 700)
 
 root.update_idletasks()
 root_width = root.winfo_width()
-#root.resizable(False, False)
 
-#root.maxsize("600x700")
-#root.state('zoomed')
+#root.resizable(False, False)
 #root.iconbitmap('local-icon')
 
-#def f(event):
-#    print("pressed:", event.keysym)
-
-#root.bind("<Key>", f)
-
+#
 header = tk.Frame(root, background="green", height=50)
 header.pack(fill="x", side="top")
 header.pack_propagate(False)
@@ -52,48 +54,38 @@ keyboard = tk.Frame(main, background="red", width=root_width, height=201)
 keyboard.pack(pady=(29,0))
 keyboard.pack_propagate(False)
 
+dark_mode = True
+c = "#A1A1A1" if dark_mode == True else "FFFFFF"
 
-
-keys_value =[   ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
-                ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
-                ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BS']
-            ]
+keys_value = [
+    {"Q": c, "W": c, "E": c, "R": c, "T": c, "Y": c, "U": c, "I": c, "O": c, "P": c},
+    {"A": c, "S": c, "D": c, "F": c, "G": c, "H": c, "J": c, "K": c, "L": c},
+    {"ENTER": c, "Z": c, "X": c, "C": c, "V": c, "B": c, "N": c, "M": c, "⌫": c}
+]
+keys_default_width = 3
 
 keyboard_rows = []
 for i in keys_value:
-    frame = tk.Frame(keyboard)
-    frame.pack(fill="both", expand=True, pady=4)
+    frame = tk.Frame(keyboard, background="yellow")
+    frame.pack(fill="y", expand=True, anchor="center", pady=3)
     keyboard_rows.append(frame)
-keyboard_rows[1].pack_configure(padx=6)
+#keyboard_rows[1].pack_configure(padx=6)
 
 for i in range(len(keyboard_rows)):
     for j in range(len(keys_value[i])):
         lbl = tk.Label(master=keyboard_rows[i],
-                       text=keys_value[i][j],
-                        relief="solid"
-                        
+                        text=list(keys_value[i].keys())[j],
+                        background=list(keys_value[i].values())[j],
+                        fg="white",
+                        font=("Segoe UI", 16, "bold"),
+                        width=keys_default_width,
                        )
-        lbl.pack(side="left", expand=True, fill="both", padx=2)
-
-#for i, row in enumerate(keys_value):
-    #row_frame = tk.Frame(keyboard, bg="white")
-    #row_frame.pack()
-    #for j, value in enumerate(row):
-        #lbl = tk.Label(row_frame, text=value, background="green", width=4, height=4)
-       # lbl.grid(row=i, column=j)
-
-##
-footer= tk.Frame(root, background="orange", height=20)
-footer.pack(fill="x", side="bottom")
-footer.pack_propagate(False)
-
-a = tk.Label(
-    master=footer,
-    text="murilobispo",
-    background="purple",
-    anchor="center"
-)
-a.pack(expand=True)
+        if len(list(keys_value[i].keys())[j]) > 1:
+            lbl.configure(width=7, font=("Segoe UI", 11, "bold"))
+        if list(keys_value[i].keys())[j] == "⌫":
+            lbl.configure(width=5)
+        lbl.pack(side="left", fill="y", anchor="center", padx=2)
+        lbl.bind("<Button-1>", click)
 ##
 
 root.mainloop()
