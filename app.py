@@ -15,11 +15,12 @@ def click(e):
     else:
         print(input)
 
+
 root = tk.Tk()
 root.title("Word Guessing Game")
-root.geometry("500x650")
+root.geometry("500x650+100+80")
 root.config(bg="grey")
-root.minsize(500, 700)
+root.minsize(500, 600)
 
 root.update_idletasks()
 root_width = root.winfo_width()
@@ -28,21 +29,27 @@ root_width = root.winfo_width()
 #root.iconbitmap('local-icon')
 
 #
-header = tk.Frame(root, background="green", height=50)
-header.pack(fill="x", side="top")
-header.pack_propagate(False)
 
-h1 = tk.Label(
-    master=header, 
-    text="1 Word",
-    font=("Arial", 20),
-    background="red",
-    foreground="white",
-    anchor="center"
-)
-h1.pack(expand=True)
+menu_bar = tk.Menu(root)
 
-##
+menu_options = tk.Menu(menu_bar, tearoff=0)
+menu_options.add_command(label="Restart")
+menu_options.add_command(label="Toggle Mode")
+menu_options.add_separator()
+menu_options.add_command(label="Exit", command= root.quit)
+
+menu_help = tk.Menu(menu_bar, tearoff=0)
+menu_help.add_command(label="About")
+menu_help.add_command(label="Github")
+
+
+menu_bar.add_cascade(label="Options", menu=menu_options)
+menu_bar.add_cascade(label="Options", menu=menu_help)
+
+root.config(menu=menu_bar)
+
+
+#
 main= tk.Frame(root, background="blue")
 main.pack(expand=True)
 
