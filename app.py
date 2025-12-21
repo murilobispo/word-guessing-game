@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 
 secretWord = 'APPLE'
 blank = ' ' * len(secretWord)
@@ -23,11 +24,55 @@ def virtual_keyboard_press(e):
     input = e.widget["text"]
     validade_key(input)
 
+def validade_input():
+    global guess_number, selected_letter
+    guesses_letters = []
+    to_remove  = []
+
+    for letter in guesses_labels[guess_number]:
+        guesses_letters.append(letter.cget("text"))
+    
+    not_in = [(j, i) for j, i in enumerate(guesses_letters) if i not in secretWord]
+    for i in range( len(guesses_letters)):
+        if guesses_letters[i] == secretWord[i]:
+            guesses_labels[guess_number][i].master.configure(bg = "#538d4e")
+            guesses_labels[guess_number][i].configure(bg = "#538d4e")
+            for key in keyboard_keys:
+                if key.cget("text") == guesses_letters[i]:
+                    key.configure(bg = "#538d4e")
+                    to_remove.append(key)
+        elif guesses_letters[i] in secretWord:
+            guesses_labels[guess_number][i].master.configure(bg = "#b59f3b")
+            guesses_labels[guess_number][i].configure(bg = "#b59f3b")
+            for key in keyboard_keys:
+                if key.cget("text") == guesses_letters[i]:
+                    key.configure(bg = "#b59f3b")
+                    to_remove.append(key)
+        else:
+            guesses_labels[guess_number][i].master.configure(bg = "#3a3a3c")
+            guesses_labels[guess_number][i].configure(bg = "#3a3a3c")
+            for key in keyboard_keys:
+                if key.cget("text") == guesses_letters[i]:
+                    key.configure(bg = "#3a3a3c")
+                    to_remove.append(key)
+
+    for key in to_remove:
+        if key in keyboard_keys:
+            keyboard_keys.remove(key)
+
+    guess_number += 1
+    selected_letter = 0
+    print(len(keyboard_keys))
+
 def validade_key(input):
     global selected_letter
     match input:
         case "ENTER":
-            print("Enter")
+            if guesses_labels[guess_number][len(secretWord) - 1].cget("text").isalpha():
+                validade_input()
+            else:
+                messagebox.showwarning("", "Not enough letters")
+
         case "⌫":
             if selected_letter == 4 and not guesses_labels[guess_number][selected_letter].cget("text") == ' ' :
                 guesses_labels[guess_number][selected_letter].configure(text=' ')
@@ -39,7 +84,6 @@ def validade_key(input):
                 guesses_labels[guess_number][selected_letter].configure(text=input)
                 if selected_letter < len(secretWord) - 1:
                     selected_letter += 1    
-            print(input)
 
 #
 #
@@ -126,6 +170,7 @@ for i in keys_value:
     keyboard_rows.append(frame)
 #keyboard_rows[1].pack_configure(padx=6)
 
+keyboard_keys = []
 for i in range(len(keyboard_rows)):
     for j in range(len(keys_value[i])):
         lbl = tk.Label(master=keyboard_rows[i],
@@ -136,11 +181,13 @@ for i in range(len(keyboard_rows)):
                         width=keys_default_width,
                        )
         if len(list(keys_value[i].keys())[j]) > 1:
-            lbl.configure(width=7, font=("Segoe UI", 11, "bold"))
+            lbl.configure(width=9, font=("Segoe UI", 9, "bold"))
         if list(keys_value[i].keys())[j] == "⌫":
-            lbl.configure(width=5)
+            lbl.configure(width=6, font=("Segoe UI", 14, "bold"))
         lbl.pack(side="left", fill="y", anchor="center", padx=2)
         lbl.bind("<Button-1>", virtual_keyboard_press)
+        if lbl.cget("text") != "ENTER" and lbl.cget("text") != "⌫":
+            keyboard_keys.append(lbl)
 
 #
 #
