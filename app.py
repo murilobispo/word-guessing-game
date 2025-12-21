@@ -8,7 +8,7 @@ attempts = 6
 guess_number = 0
 selected_letter = 0
 dark_mode = True
-c = "#A1A1A1" if dark_mode == True else "FFFFFF"
+c = "#818384" if dark_mode == True else "FFFFFF"
 
 def keyboard_press(e):
     input = e.keysym
@@ -46,7 +46,7 @@ def validade_key(input):
 root = tk.Tk()
 root.title("Word Guessing Game")
 root.geometry("500x650+100+80")
-root.config(bg="grey")
+root.config(bg="grey", background="#1D1D1D")
 root.minsize(500, 650)
 
 root.update_idletasks()
@@ -74,23 +74,13 @@ menu_bar.add_cascade(label="Options", menu=menu_help)
 
 root.config(menu=menu_bar)
 
-
 #
 #
 
-
-
-
-
-
-
-
-
-
-main= tk.Frame(root, background="blue")
+main= tk.Frame(root, background=root["bg"])
 main.pack(expand=True)
 
-guesses = tk.Frame(main, background="darkgray", width=350, height=400)
+guesses = tk.Frame(main, background=root["bg"], width=300, height=350)
 guesses.pack()
 guesses.pack_propagate(False)
 guesses.grid_propagate(False)
@@ -100,55 +90,25 @@ guesses_labels = [[] for _ in range(attempts)]
 for i in range(attempts):
     for j in range(len(secretWord)):
         frame = tk.Frame(master=guesses,
-                         background="green",)
+                         background=root["bg"],
+                         highlightbackground="grey",
+                        highlightthickness=1)
         frame.grid(row=i, column=j, sticky="nsew", padx=2, pady=2)
         frame.grid_propagate(False) # Se o frame fosse grid
         frame.pack_propagate(False) # Como o Label dentro dele usa pack, usamo
         guesses.grid_rowconfigure(i, weight=1)
         guesses.grid_columnconfigure(j, weight=1)
-        lbl = tk.Label(frame,text=" ", background="grey", font=("Segoe UI", 20, "bold"),)
+        lbl = tk.Label(frame,text=" ", 
+                       background=root["bg"], 
+                       font=("Segoe UI", 20, "bold"),
+                       fg="white")
         lbl.pack(expand=True)
         guesses_labels[i].append(lbl)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #
 #
 
-
-keyboard = tk.Frame(main, background="red", width=root_width, height=201)
+keyboard = tk.Frame(main, background=root["bg"], width=root_width, height=201)
 keyboard.pack(pady=(29,0))
 keyboard.pack_propagate(False)
 
@@ -161,7 +121,7 @@ keys_default_width = 3
 
 keyboard_rows = []
 for i in keys_value:
-    frame = tk.Frame(keyboard, background="yellow")
+    frame = tk.Frame(keyboard, background=root["bg"])
     frame.pack(fill="y", expand=True, anchor="center", pady=3)
     keyboard_rows.append(frame)
 #keyboard_rows[1].pack_configure(padx=6)
@@ -181,8 +141,6 @@ for i in range(len(keyboard_rows)):
             lbl.configure(width=5)
         lbl.pack(side="left", fill="y", anchor="center", padx=2)
         lbl.bind("<Button-1>", virtual_keyboard_press)
-
-
 
 #
 #
