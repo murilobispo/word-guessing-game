@@ -9,9 +9,13 @@ attempts = 6
 guess_number = 0
 selected_letter = 0
 dark_mode = True
+win = False
+game_over = False
 c = "#818384" if dark_mode == True else "FFFFFF"
 
 def keyboard_press(e):
+    if win or game_over:
+        return
     input = e.keysym
     if input == 'BackSpace': validade_key("⌫")
     elif input == 'Return' : validade_key("ENTER")
@@ -21,15 +25,70 @@ def keyboard_press(e):
             validade_key(input.upper())
 
 def virtual_keyboard_press(e):
+    if win or game_over:
+        return
     input = e.widget["text"]
     validade_key(input)
 
+def validade_key(input):
+    global selected_letter
+    match input:
+        case "ENTER":
+            if guesses_labels[guess_number][len(secretWord) - 1].cget("text").isalpha():
+                validade_input()
+            else:
+                messagebox.showwarning("", "Not enough letters")
+
+        case "⌫":
+            if selected_letter == 4 and not guesses_labels[guess_number][selected_letter].cget("text") == ' ' :
+                guesses_labels[guess_number][selected_letter].configure(text=' ')
+            elif 0 < selected_letter < len(secretWord):
+                selected_letter -= 1
+                guesses_labels[guess_number][selected_letter].configure(text=' ')
+        case _:
+            if selected_letter < len(secretWord) and guesses_labels[guess_number][selected_letter].cget("text") == ' ':
+                guesses_labels[guess_number][selected_letter].configure(text=input)
+                if selected_letter < len(secretWord) - 1:
+                    selected_letter += 1    
+def end_game():
+    lbl = tk.Label(root, fg="black", bg="white")
+    width = 100
+    if game_over:
+        lbl.config(text=secretWord, font=("Segoe UI", 14, "bold"))
+    if win:
+        match guess_number:
+            case 1:
+                end_message = "Genius"
+            case 2:
+                end_message = "Magnificent"
+                width = 120
+            case 3:
+                end_message = "Impressive"
+                width = 120
+            case 4:
+                end_message = "Splendid"
+                width = 110
+            case 5:
+                end_message = "Great"
+            case 6:
+                end_message = "Phew"
+
+        lbl.config(
+            text=end_message,
+            font=("Segoe UI", 12, "bold"),
+            fg="black",
+            bg="white"
+        )
+
+    lbl.place(relx=0.5, rely=0.06, anchor="center", width=width, height=45)
+    root.after(4000, lbl.destroy)
+
+
+
 def validade_input():
-    global guess_number, selected_letter
+    global guess_number, selected_letter, win, game_over
     aux_Word = list(secretWord)
     guesses_letters = []
-    green = "#538d4e"
-    orange = "#b59f3b"
 
     for letter in guesses_labels[guess_number]:
         guesses_letters.append(letter.cget("text"))
@@ -44,7 +103,10 @@ def validade_input():
                     keyboard_keys.remove(key) 
             guesses_letters[i] = None 
             aux_Word[i] = None 
-      
+    
+    if all(letter is None for letter in guesses_letters):
+        win = True
+    
     for i in range(len(guesses_letters)): 
         if guesses_letters[i] is not None and guesses_letters[i] in aux_Word: 
             guesses_labels[guess_number][i].master.configure(bg = "#b59f3b") 
@@ -67,26 +129,10 @@ def validade_input():
     guess_number += 1
     selected_letter = 0
 
-def validade_key(input):
-    global selected_letter
-    match input:
-        case "ENTER":
-            if guesses_labels[guess_number][len(secretWord) - 1].cget("text").isalpha():
-                validade_input()
-            else:
-                messagebox.showwarning("", "Not enough letters")
-
-        case "⌫":
-            if selected_letter == 4 and not guesses_labels[guess_number][selected_letter].cget("text") == ' ' :
-                guesses_labels[guess_number][selected_letter].configure(text=' ')
-            elif 0 < selected_letter < len(secretWord):
-                selected_letter -= 1
-                guesses_labels[guess_number][selected_letter].configure(text=' ')
-        case _:
-            if selected_letter < len(secretWord) and guesses_labels[guess_number][selected_letter].cget("text") == ' ':
-                guesses_labels[guess_number][selected_letter].configure(text=input)
-                if selected_letter < len(secretWord) - 1:
-                    selected_letter += 1    
+    if guess_number == attempts:
+        game_over = True
+    if game_over or win:
+        end_game()
 
 #
 #
@@ -191,7 +237,7 @@ for i in range(len(keyboard_rows)):
         lbl.bind("<Button-1>", virtual_keyboard_press)
         if lbl.cget("text") != "ENTER" and lbl.cget("text") != "⌫":
             keyboard_keys.append(lbl)
-
+print(len(keyboard_keys))
 #
 #
 root.bind("<Key>", keyboard_press)
