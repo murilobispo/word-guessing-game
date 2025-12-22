@@ -26,43 +26,46 @@ def virtual_keyboard_press(e):
 
 def validade_input():
     global guess_number, selected_letter
+    aux_Word = list(secretWord)
     guesses_letters = []
-    to_remove  = []
+    green = "#538d4e"
+    orange = "#b59f3b"
 
     for letter in guesses_labels[guess_number]:
         guesses_letters.append(letter.cget("text"))
     
-    not_in = [(j, i) for j, i in enumerate(guesses_letters) if i not in secretWord]
-    for i in range( len(guesses_letters)):
-        if guesses_letters[i] == secretWord[i]:
-            guesses_labels[guess_number][i].master.configure(bg = "#538d4e")
+    for i in range(len(guesses_letters)): 
+        if guesses_letters[i] == aux_Word[i]: 
+            guesses_labels[guess_number][i].master.configure(bg = "#538d4e") 
             guesses_labels[guess_number][i].configure(bg = "#538d4e")
-            for key in keyboard_keys:
-                if key.cget("text") == guesses_letters[i]:
-                    key.configure(bg = "#538d4e")
-                    to_remove.append(key)
-        elif guesses_letters[i] in secretWord:
-            guesses_labels[guess_number][i].master.configure(bg = "#b59f3b")
+            for key in keyboard_keys: 
+                if key.cget("text") == guesses_letters[i]: 
+                    key.configure(bg = "#538d4e") 
+                    keyboard_keys.remove(key) 
+            guesses_letters[i] = None 
+            aux_Word[i] = None 
+      
+    for i in range(len(guesses_letters)): 
+        if guesses_letters[i] is not None and guesses_letters[i] in aux_Word: 
+            guesses_labels[guess_number][i].master.configure(bg = "#b59f3b") 
             guesses_labels[guess_number][i].configure(bg = "#b59f3b")
-            for key in keyboard_keys:
-                if key.cget("text") == guesses_letters[i]:
-                    key.configure(bg = "#b59f3b")
-                    to_remove.append(key)
-        else:
+            idx = aux_Word.index(guesses_letters[i])
+            for key in keyboard_keys: 
+                if key.cget("text") == guesses_letters[i]: 
+                    key.configure(bg = "#b59f3b") 
+            aux_Word[idx] = None 
+            guesses_letters[i] = None 
+
+    for i in range(len(guesses_letters)): 
+        if guesses_letters[i] is not None: 
             guesses_labels[guess_number][i].master.configure(bg = "#3a3a3c")
-            guesses_labels[guess_number][i].configure(bg = "#3a3a3c")
-            for key in keyboard_keys:
-                if key.cget("text") == guesses_letters[i]:
-                    key.configure(bg = "#3a3a3c")
-                    to_remove.append(key)
-
-    for key in to_remove:
-        if key in keyboard_keys:
-            keyboard_keys.remove(key)
-
+            guesses_labels[guess_number][i].configure(bg = "#3a3a3c") 
+            for key in keyboard_keys: 
+                if key.cget("text") == guesses_letters[i]: 
+                    key.configure(bg = "#3a3a3c") 
+                    keyboard_keys.remove(key)          
     guess_number += 1
     selected_letter = 0
-    print(len(keyboard_keys))
 
 def validade_key(input):
     global selected_letter
