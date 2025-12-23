@@ -1,9 +1,17 @@
 import tkinter as tk
 from tkinter import messagebox
+from requests import get
+import sys
+import os
 
-secretWord = 'APPLE'
+response = get("https://random-word-api.herokuapp.com/word?length=5")
+if response.status_code == 200:
+    secretWord = response.json()[0].upper()
+else:
+    secretWord = 'APPLE'
+print(secretWord)
+
 blank = ' ' * len(secretWord)
-print(blank)
 
 attempts = 6
 guess_number = 0
@@ -12,6 +20,16 @@ dark_mode = True
 win = False
 game_over = False
 c = "#818384" if dark_mode == True else "FFFFFF"
+
+def virtual_keyboard_press(e):
+    if win or game_over:
+        return
+    input = e.widget["text"]
+    validade_key(input)
+
+def reiniciar_app():
+    root.destroy()
+    os.execl(sys.executable, sys.executable, *sys.argv)   
 
 def keyboard_press(e):
     if win or game_over:
@@ -23,12 +41,6 @@ def keyboard_press(e):
         input = e.char
         if input.isalpha():
             validade_key(input.upper())
-
-def virtual_keyboard_press(e):
-    if win or game_over:
-        return
-    input = e.widget["text"]
-    validade_key(input)
 
 def validade_key(input):
     global selected_letter
@@ -83,8 +95,6 @@ def end_game():
     lbl.place(relx=0.5, rely=0.06, anchor="center", width=width, height=45)
     root.after(4000, lbl.destroy)
 
-
-
 def validade_input():
     global guess_number, selected_letter, win, game_over
     aux_Word = list(secretWord)
@@ -133,8 +143,6 @@ def validade_input():
         game_over = True
     if game_over or win:
         end_game()
-
-#
 #
 root = tk.Tk()
 root.title("Word Guessing Game")
@@ -144,16 +152,11 @@ root.minsize(500, 650)
 
 root.update_idletasks()
 root_width = root.winfo_width()
-
-#root.resizable(False, False)
-#root.iconbitmap('local-icon')
 #
-#
-
 menu_bar = tk.Menu(root)
 
 menu_options = tk.Menu(menu_bar, tearoff=0)
-menu_options.add_command(label="Restart")
+menu_options.add_command(label="Restart", command=reiniciar_app)
 menu_options.add_command(label="Toggle Mode")
 menu_options.add_separator()
 menu_options.add_command(label="Exit", command= root.quit)
@@ -166,10 +169,7 @@ menu_bar.add_cascade(label="Options", menu=menu_options)
 menu_bar.add_cascade(label="Options", menu=menu_help)
 
 root.config(menu=menu_bar)
-
 #
-#
-
 main= tk.Frame(root, background=root["bg"])
 main.pack(expand=True)
 
@@ -197,10 +197,7 @@ for i in range(attempts):
                        fg="white")
         lbl.pack(expand=True)
         guesses_labels[i].append(lbl)
-
 #
-#
-
 keyboard = tk.Frame(main, background=root["bg"], width=root_width, height=201)
 keyboard.pack(pady=(29,0))
 keyboard.pack_propagate(False)
@@ -237,8 +234,6 @@ for i in range(len(keyboard_rows)):
         lbl.bind("<Button-1>", virtual_keyboard_press)
         if lbl.cget("text") != "ENTER" and lbl.cget("text") != "⌫":
             keyboard_keys.append(lbl)
-print(len(keyboard_keys))
-#
 #
 root.bind("<Key>", keyboard_press)
 root.mainloop()
