@@ -1,19 +1,59 @@
 import tkinter as tk
+import json
 from tkinter import messagebox
 from requests import get
 import sys
 import os
 
-
-
-config_language = "EN"
 attempts = 6
 guess_number = 0
 selected_letter = 0
 dark_mode = True
 win = False
 game_over = False
-c = "#818384" if dark_mode == True else "FFFFFF"
+
+def load_lang(file_path="config.json"):
+    with open(file_path, "r") as f:
+        config = json.load(f)
+    return config.get("language", "en")
+
+def change_lang(*args ,file_path="config.json"):
+    with open(file_path, "r") as f:
+        config = json.load(f)
+    lang_json = config.get("language", "en")
+    lang_new = language.get()
+    if lang_new != lang_json:
+        config["language"] = lang_new
+        with open(file_path, "w") as f:
+            json.dump(config, f, indent=4)
+        if messagebox.askyesno( "Restart Required", "You need to restart to change the language.\nDo you want to do it now?"):
+            restart_game()
+
+def restart_game():
+    print("restart")
+
+
+def load_theme(root, keyboard_keys, file_path="config.json"):
+    with open(file_path, "r") as f:
+        config = json.load(f)
+    dark_theme = config.get("dark_theme", True)
+
+    bg_color  = "#1D1D1D" if dark_theme else "#FFFFFF"
+    fg_color  = "#FFFFFF" if dark_theme else "#000000"
+    key_color = "#AAAAAA" if dark_theme else "#d3d6da"
+
+    root.config(bg=bg_color)
+    stack = [root]
+    while stack:
+        widget = stack.pop()
+        if isinstance(widget, tk.Label):
+            widget.config(bg=bg_color, fg=fg_color)
+        elif isinstance(widget, tk.Frame):
+            widget.config(bg=bg_color)
+        stack.extend(widget.winfo_children())
+    for key in keyboard_keys:
+        key.config(bg=key_color)
+
 
 def request_word():
     response = get("https://random-word-api.herokuapp.com/word?length=5&lang=en")
@@ -146,6 +186,7 @@ def validade_input():
         game_over = True
     if game_over or win:
         end_game()
+
 def create_menu_bar(parent, language):
     menu_bar = tk.Menu(parent)
     parent.config(menu=menu_bar)
@@ -155,8 +196,9 @@ def create_menu_bar(parent, language):
     menu_options.add_command(label="Restart", command=restart_app)
     menu_languages = tk.Menu(menu_options, tearoff=0)
     menu_options.add_cascade(label="Language", menu=menu_languages)
-    menu_languages.add_radiobutton(label="EN", value="EN", variable=language)
-    menu_languages.add_radiobutton(label="PT-BR", value="PT-BR", variable=language)
+    menu_languages.add_radiobutton(label="EN", value="en", variable=language)
+    menu_languages.add_radiobutton(label="PT-BR", value="pt-br", variable=language)
+    language.trace_add("write", change_lang)
     menu_options.add_command(label="Toggle Mode")
     menu_options.add_separator()
     menu_options.add_command(label="Exit", command=parent.quit)
@@ -194,7 +236,7 @@ def create_guess_section(parent, attempts, secretWord, bg_color):
     return guesses, guesses_labels
 
 
-def create_keyboard_section(parent, root_width , bg_color, bg_key_color):
+def create_keyboard_section(parent, root_width , bg_color):
     keyboard = tk.Frame(parent, background=bg_color, width=root_width, height=201)
     keyboard.pack(pady=(29,0))
     keyboard.pack_propagate(False)
@@ -217,7 +259,6 @@ def create_keyboard_section(parent, root_width , bg_color, bg_key_color):
         for key in row:
             lbl = tk.Label(master=keyboard_rows[i],
                             text=key,
-                            background=bg_key_color,
                             fg="white",
                             font=("Segoe UI", 16, "bold"),
                             width=keys_default_width,
@@ -228,29 +269,31 @@ def create_keyboard_section(parent, root_width , bg_color, bg_key_color):
                 lbl.configure(width=6, font=("Segoe UI", 14, "bold"))
             lbl.pack(side="left", fill="y", anchor="center", padx=2)
             lbl.bind("<Button-1>", virtual_keyboard_press)
-            if lbl.cget("text") != "ENTER" and lbl.cget("text") != "⌫":
-                keyboard_keys.append(lbl)
+            keyboard_keys.append(lbl)
     return keyboard, keyboard_rows, keyboard_keys
 
 #
+
 secretWord = request_word()
 
 root = tk.Tk()
-language = tk.StringVar(value=config_language)
 root.title("Word Guessing Game")
 root.geometry("500x650+100+80")
-root.config(bg="grey", background="#1D1D1D")
+root.config()
 root.minsize(500, 650)
 
 root.update_idletasks()
 root_width = root.winfo_width()
 
-main= tk.Frame(root, background=root["bg"])
+boot_lang = load_lang()
+language = tk.StringVar(value=boot_lang)
+main = tk.Frame(root, background=root["bg"])
 main.pack(expand=True)
 
 create_menu_bar(root, language)
 guesses, guesses_labels = create_guess_section(main, attempts, secretWord, root["bg"]) 
-keyboard, keyboard_rows, keyboard_keys = create_keyboard_section(main, root_width, root["bg"], c)
+keyboard, keyboard_rows, keyboard_keys = create_keyboard_section(main, root_width, root["bg"])
+theme = load_theme(root, keyboard_keys)
 
 root.bind("<Key>", keyboard_press)
 root.mainloop()
