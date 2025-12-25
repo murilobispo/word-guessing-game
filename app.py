@@ -4,6 +4,7 @@ from tkinter import messagebox
 from requests import get
 import sys
 import os
+import webbrowser
 
 attempts = 6
 guess_number = 0
@@ -16,6 +17,16 @@ correct_color = "#538d4e"
 close_color   = "#b59f3b"
 wrong_color   = "#3a3a3c"
 
+def open_github():
+    webbrowser.open("https://github.com/murilobispo/word-guessing-game")
+
+def show_about():
+    messagebox.showinfo(title=texts["menu_2"]["about"],
+                        message=texts["about"]["text"])
+
+def how_to_play():
+    print("how to play")
+                     
 def load_config(file_path):
     with open(file_path, "r") as f:
         config = json.load(f)
@@ -122,6 +133,7 @@ def validade_key(input):
                 guesses_labels[guess_number][selected_letter].configure(text=input)
                 if selected_letter < len(secretWord) - 1:
                     selected_letter += 1    
+
 def end_game():
     lbl = tk.Label(root, fg="black", bg="white")
     if game_over:
@@ -156,7 +168,8 @@ def validade_input():
             for key in keyboard_keys: 
                 if key.cget("text") == guesses_letters[i]: 
                     key.configure(bg=correct_color, fg="white") 
-                    keyboard_keys.remove(key) 
+                    keyboard_keys.remove(key)
+                    break
             guesses_letters[i] = None 
             aux_Word[i] = None 
     
@@ -171,17 +184,20 @@ def validade_input():
             for key in keyboard_keys: 
                 if key.cget("text") == guesses_letters[i]: 
                     key.configure(bg=close_color, fg="white") 
-            aux_Word[idx] = None 
+                    break
             guesses_letters[i] = None 
-
+            aux_Word[idx] = None 
+    
     for i in range(len(guesses_letters)): 
         if guesses_letters[i] is not None: 
             guesses_labels[guess_number][i].master.configure(bg = wrong_color)
             guesses_labels[guess_number][i].configure(bg=wrong_color, fg="white") 
             for key in keyboard_keys: 
-                if key.cget("text") == guesses_letters[i]: 
-                    key.configure(bg=wrong_color, fg="white") 
-                    keyboard_keys.remove(key)          
+                if key.cget("text") == guesses_letters[i] and key.cget("bg") not in [correct_color, close_color]: 
+                        key.configure(bg=wrong_color, fg="white") 
+                        keyboard_keys.remove(key) 
+                        break 
+                           
     guess_number += 1
     selected_letter = 0
 
@@ -207,8 +223,9 @@ def create_menu_bar(parent, lang_menu):
     menu_options.add_command(label=texts["menu_1"]["exit"], command=parent.quit)
 
     menu_help = tk.Menu(menu_bar, tearoff=0)
-    menu_help.add_command(label=texts["menu_2"]["about"])
-    menu_help.add_command(label=texts["menu_2"]["github"])
+    menu_help.add_command(label=texts["menu_2"]["how"], command=how_to_play)
+    menu_help.add_command(label=texts["menu_2"]["about"], command=show_about)
+    menu_help.add_command(label=texts["menu_2"]["github"], command=open_github)
     menu_bar.add_cascade(label=texts["menu_title"]["help"], menu=menu_help)
 
 def create_guess_section(parent, attempts, secretWord, bg_color):
@@ -276,10 +293,10 @@ def create_keyboard_section(parent, root_width , bg_color):
 #
 config = load_config(config_file)
 lang, texts, lang_data = load_lang(config, lang_file)
-secretWord = request_word(lang,)
+secretWord = request_word(lang)
 
 root = tk.Tk()
-root.title("Word Guessing Game")
+root.title("Wordle Clone")
 root.geometry("500x650+100+80")
 root.config()
 root.minsize(500, 650)
@@ -293,9 +310,6 @@ lang_menu = tk.StringVar(value=lang)
 create_menu_bar(root, lang_menu)
 guesses, guesses_labels = create_guess_section(main, attempts, secretWord, root["bg"]) 
 keyboard, keyboard_rows, keyboard_keys = create_keyboard_section(main, root_width, root["bg"])
-
 apply_theme(config)
 root.bind("<Key>", keyboard_press)
-
 root.mainloop()
-#

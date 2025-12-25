@@ -11,6 +11,7 @@
             "exit": "Exit"
         },
         "menu_2":{
+            "how": "How to Play",
             "about": "About",
             "github": "GitHub"
         },
@@ -19,7 +20,7 @@
             "dialog": "You need to restart to change the language.\nDo you want to do it now?"
         },
         "about":{
-            "text": ""
+            "text": "Educational project: practicing programming and game logic.\nEnjoy and learn!"
         },
         "end_msg":{
             "guess1": "Genius",
@@ -42,6 +43,7 @@
             "exit": "Sair"
         },
         "menu_2": {
+            "how": "Como Jogar",
             "about": "Sobre",
             "github": "GitHub"
         },
@@ -50,7 +52,7 @@
             "dialog": "Você precisa reiniciar para trocar o idioma.\nDeseja fazer isso agora?"
         },
         "about": {
-            "text": ""
+            "text": "Projeto educacional: praticando programação e lógica de jogos.\nDivirta-se e aprenda!"
         },
         "end_msg": {
             "guess1": "Genial",
