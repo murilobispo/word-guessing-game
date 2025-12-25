@@ -8,15 +8,22 @@ import os
 attempts = 6
 guess_number = 0
 selected_letter = 0
-dark_mode = True
 win = False
 game_over = False
+config_file = "config.json"
+lang_file  = "lang.json"
+correct_color = "#538d4e"
+close_color   = "#b59f3b"
+wrong_color   = "#3a3a3c"
 
-def load_lang(file_path="config.json"):
+def load_config(file_path):
     with open(file_path, "r") as f:
         config = json.load(f)
-    LANG =  config.get("language", "en")
-    with open("lang.json", "r", encoding="utf-8") as f:
+    return config
+
+def load_lang(config, file_path):
+    LANG = config.get("language", "en")
+    with open(file_path, "r", encoding="utf-8") as f:
         LANG_DATA = json.load(f)
     TEXTS = LANG_DATA[LANG]
     return LANG, TEXTS, LANG_DATA
@@ -29,38 +36,46 @@ def change_lang(*args ,file_path="config.json"):
     with open(file_path, "r", encoding="utf-8") as f:
         config = json.load(f)
     config["language"] = new_lang
-    restart_req =  messagebox.askyesno( texts["restart"]["title"], 
-                           texts["restart"]["dialog"])
+    restart_req =  messagebox.askyesno( texts["restart"]["title"], texts["restart"]["dialog"])
     with open(file_path, "w") as f:
         json.dump(config, f, indent=4)
     if restart_req: restart_game()
 
 def restart_game():
+    root.quit()
     root.destroy()
     os.execl(sys.executable, sys.executable, *sys.argv) 
+    
+def toggle_theme():
+    config["dark_theme"] = not config.get("dark_theme", True)
+    with open("config.json", "w") as f:
+        json.dump(config, f, indent=4)
+    apply_theme(config)
+        
+def apply_theme(config):
+    theme = config.get("dark_theme", True)
 
-def load_theme(root, keyboard_keys, file_path="config.json"):
-    with open(file_path, "r") as f:
-        config = json.load(f)
-    dark_theme = config.get("dark_theme", True)
-
-    bg_color  = "#1D1D1D" if dark_theme else "#FFFFFF"
-    fg_color  = "#FFFFFF" if dark_theme else "#000000"
-    key_color = "#AAAAAA" if dark_theme else "#d3d6da"
+    bg_color  = "#1D1D1D" if theme else "#FFFFFF"
+    fg_color  = "#FFFFFF" if theme else "#000000"
+    key_color = "#AAAAAA" if theme else "#d3d6da"
 
     root.config(bg=bg_color)
-    stack = [root]
-    while stack:
-        widget = stack.pop()
-        if isinstance(widget, tk.Label):
-            widget.config(bg=bg_color, fg=fg_color)
-        elif isinstance(widget, tk.Frame):
-            widget.config(bg=bg_color)
-        stack.extend(widget.winfo_children())
+    main.config(bg=bg_color)
+    guesses.config(bg=bg_color)
+    keyboard.config(bg=bg_color)
+    for row in keyboard_rows:
+        row.config(bg=bg_color)
     for key in keyboard_keys:
-        key.config(bg=key_color)
+        if key.cget("bg") != close_color:
+            key.config(bg=key_color, fg=fg_color)
+    for i in range(guess_number, len(guesses_labels)):
+        for j in range(len(secretWord)):
+            guesses_labels[i][j].master.configure(bg=bg_color) 
+            guesses_labels[i][j].configure(bg=bg_color, fg=fg_color)
 
-def request_word(lang = None):
+    return theme
+
+def request_word(lang = "en"):
     url = "https://random-word-api.herokuapp.com/word?length=5&lang=" + lang
     response = get(url)
     if response.status_code == 200:
@@ -136,11 +151,11 @@ def validade_input():
     
     for i in range(len(guesses_letters)): 
         if guesses_letters[i] == aux_Word[i]: 
-            guesses_labels[guess_number][i].master.configure(bg = "#538d4e") 
-            guesses_labels[guess_number][i].configure(bg = "#538d4e")
+            guesses_labels[guess_number][i].master.configure(bg=correct_color) 
+            guesses_labels[guess_number][i].configure(bg=correct_color, fg="white")
             for key in keyboard_keys: 
                 if key.cget("text") == guesses_letters[i]: 
-                    key.configure(bg = "#538d4e") 
+                    key.configure(bg=correct_color, fg="white") 
                     keyboard_keys.remove(key) 
             guesses_letters[i] = None 
             aux_Word[i] = None 
@@ -150,22 +165,22 @@ def validade_input():
     
     for i in range(len(guesses_letters)): 
         if guesses_letters[i] is not None and guesses_letters[i] in aux_Word: 
-            guesses_labels[guess_number][i].master.configure(bg = "#b59f3b") 
-            guesses_labels[guess_number][i].configure(bg = "#b59f3b")
+            guesses_labels[guess_number][i].master.configure(bg=close_color) 
+            guesses_labels[guess_number][i].configure(bg=close_color, fg="white")
             idx = aux_Word.index(guesses_letters[i])
             for key in keyboard_keys: 
                 if key.cget("text") == guesses_letters[i]: 
-                    key.configure(bg = "#b59f3b") 
+                    key.configure(bg=close_color, fg="white") 
             aux_Word[idx] = None 
             guesses_letters[i] = None 
 
     for i in range(len(guesses_letters)): 
         if guesses_letters[i] is not None: 
-            guesses_labels[guess_number][i].master.configure(bg = "#3a3a3c")
-            guesses_labels[guess_number][i].configure(bg = "#3a3a3c") 
+            guesses_labels[guess_number][i].master.configure(bg = wrong_color)
+            guesses_labels[guess_number][i].configure(bg=wrong_color, fg="white") 
             for key in keyboard_keys: 
                 if key.cget("text") == guesses_letters[i]: 
-                    key.configure(bg = "#3a3a3c") 
+                    key.configure(bg=wrong_color, fg="white") 
                     keyboard_keys.remove(key)          
     guess_number += 1
     selected_letter = 0
@@ -185,10 +200,9 @@ def create_menu_bar(parent, lang_menu):
     menu_languages = tk.Menu(menu_options, tearoff=0)
     menu_options.add_cascade(label=texts["menu_1"]["language"], menu=menu_languages)
     for lang_code in lang_data.keys():
-        menu_languages.add_radiobutton(label=lang_code.upper(), value=lang_code, variable=lang_menu
-        )
+        menu_languages.add_radiobutton(label=lang_code.upper(), value=lang_code, variable=lang_menu)
     lang_menu.trace_add("write", change_lang)
-    menu_options.add_command(label=texts["menu_1"]["theme"])
+    menu_options.add_command(label=texts["menu_1"]["theme"], command=toggle_theme)
     menu_options.add_separator()
     menu_options.add_command(label=texts["menu_1"]["exit"], command=parent.quit)
 
@@ -252,7 +266,7 @@ def create_keyboard_section(parent, root_width , bg_color):
                             width=keys_default_width,
                         )
             if len(key) > 1:
-                lbl.configure(width=9, font=("Segoe UI", 9, "bold"))
+                lbl.configure(width=8, font=("Segoe UI", 10, "bold"))
             if key == "⌫":
                 lbl.configure(width=6, font=("Segoe UI", 14, "bold"))
             lbl.pack(side="left", fill="y", anchor="center", padx=2)
@@ -260,8 +274,9 @@ def create_keyboard_section(parent, root_width , bg_color):
             keyboard_keys.append(lbl)
     return keyboard, keyboard_rows, keyboard_keys
 #
-lang, texts, lang_data = load_lang()
-secretWord = request_word(lang)
+config = load_config(config_file)
+lang, texts, lang_data = load_lang(config, lang_file)
+secretWord = request_word(lang,)
 
 root = tk.Tk()
 root.title("Word Guessing Game")
@@ -278,7 +293,8 @@ lang_menu = tk.StringVar(value=lang)
 create_menu_bar(root, lang_menu)
 guesses, guesses_labels = create_guess_section(main, attempts, secretWord, root["bg"]) 
 keyboard, keyboard_rows, keyboard_keys = create_keyboard_section(main, root_width, root["bg"])
-theme = load_theme(root, keyboard_keys)
+
+apply_theme(config)
 root.bind("<Key>", keyboard_press)
 
 root.mainloop()
