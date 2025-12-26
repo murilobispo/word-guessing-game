@@ -23,10 +23,7 @@ def open_github():
 def show_about():
     messagebox.showinfo(title=texts["menu_2"]["about"],
                         message=texts["about"]["text"])
-
-def how_to_play():
-    print("how to play")
-                     
+        
 def load_config(file_path):
     with open(file_path, "r") as f:
         config = json.load(f)
@@ -93,7 +90,6 @@ def request_word(lang = "en"):
         secretWord = response.json()[0].upper()
     else:
         secretWord = 'APPLE'
-    print(secretWord)
     return secretWord
 
 def virtual_keyboard_press(e):
@@ -223,7 +219,6 @@ def create_menu_bar(parent, lang_menu):
     menu_options.add_command(label=texts["menu_1"]["exit"], command=parent.quit)
 
     menu_help = tk.Menu(menu_bar, tearoff=0)
-    menu_help.add_command(label=texts["menu_2"]["how"], command=how_to_play)
     menu_help.add_command(label=texts["menu_2"]["about"], command=show_about)
     menu_help.add_command(label=texts["menu_2"]["github"], command=open_github)
     menu_bar.add_cascade(label=texts["menu_title"]["help"], menu=menu_help)
@@ -290,14 +285,14 @@ def create_keyboard_section(parent, root_width , bg_color):
             lbl.bind("<Button-1>", virtual_keyboard_press)
             keyboard_keys.append(lbl)
     return keyboard, keyboard_rows, keyboard_keys
-#
+
 config = load_config(config_file)
 lang, texts, lang_data = load_lang(config, lang_file)
 secretWord = request_word(lang)
 
 root = tk.Tk()
-root.title("Wordle Clone")
-root.geometry("500x650+100+80")
+root.title("Word guessing game")
+root.geometry("500x650+80+80")
 root.config()
 root.minsize(500, 650)
 root.update_idletasks()
@@ -312,4 +307,5 @@ guesses, guesses_labels = create_guess_section(main, attempts, secretWord, root[
 keyboard, keyboard_rows, keyboard_keys = create_keyboard_section(main, root_width, root["bg"])
 apply_theme(config)
 root.bind("<Key>", keyboard_press)
+
 root.mainloop()
