@@ -1,7 +1,6 @@
 # Word Guessing Game
 <div align="center">
-
-
+![Image](https://github.com/user-attachments/assets/5bbb9ad4-6705-4558-b273-7deea567dc95)
 </div>
 
 ## About The Project
