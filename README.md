@@ -1,6 +1,7 @@
 # Word Guessing Game
+
 <div align="center">
-![Image](https://github.com/user-attachments/assets/5bbb9ad4-6705-4558-b273-7deea567dc95)
+  <img src="https://github.com/user-attachments/assets/5bbb9ad4-6705-4558-b273-7deea567dc95" width="600" alt="app-preview">
 </div>
 
 ## About The Project
@@ -27,7 +28,11 @@ Clone this repository and make sure you have Python installed.
     ```sh
     pip install requests
     ```
-3. Run the game
+3. Install Tkinter (Linux only)
+    ```sh
+    sudo apt install python3-tk
+    ```
+4. Run the game
     ```sh
     python app.py
     ```
